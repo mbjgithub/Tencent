@@ -53,7 +53,7 @@
 	var loadPlayer=__webpack_require__(2);
 	var event=__webpack_require__(5);
 	var videoPlayer=__webpack_require__(9);
-
+	var windowEvent=__webpack_require__(11);
 	// module.exports=function(){
 	// 	$(document).ready(function(){
 	// 	//这里需要我手动创建script标签把'//vm.gtimg.cn/tencentvideo/txp/js/txplayer.js'加载到页面中吗
@@ -86,6 +86,7 @@
 			        script = null;
 			        var t=videoPlayer();
 	                event(t);
+	                windowEvent(t);
 			      }
 			    };
 		document.getElementsByTagName("body")[0].append(script);     
@@ -217,13 +218,18 @@
 
 	module.exports=function(player){
 	  $("body").on("mouseover",function(e){
-	      var count=10,temp=$(e.target),vid,
+	      var count=10,temp=$(e.target),vid,btnLeft,
 	          btn=button();
 	      while(temp.length>0&&count--){
-	        if(temp[0].nodeName.toLowerCase()==="a"&&(vid=parse(temp.attr("href")))&&temp.find("img").length>0){
+	        if(temp[0].nodeName.toLowerCase()==="a"&&
+	                (vid=parse(temp.attr("href")))&&
+	                (temp.find("img").length>0||(btnLeft=temp.css("backgroundImage").indexOf("url")>=0))){
 	          temp.css({position:"relative",display:"inline-block"}).append(btn).on("mouseover",function(e){
 	             var tempBtn=$(this).find("button");
 	             tempBtn.css("display","block");
+	             if(btnLeft){
+	              tempBtn.css({right:120,top:120});
+	             }
 	             e.stopPropagation();
 	          });
 	          temp.on("mouseout",function(e){
@@ -233,14 +239,13 @@
 	          });
 	          temp.find("button").on("click",function(e){
 	               //make video player available
-	               console.log(111111);
+	               // btnLeft? $(".video_container_header_title").text(temp.text()) :
 	               $(".video_container_header_title").text($(this).parent().attr("title")||$(this).parent().find("img").attr("alt")||"腾讯视频");
 	               $(".video_container").css("display","block");  //在播放完当前视频后，广告也算是当前视频的？
-	               if(player.getVid&&player.getVid()===vid&&player.getPlayerState()===2){  //当前视频被暂停的
+	               if(player.getVid()===vid&&player.getPlayerState()===2){  //当前视频被暂停的
 	                  player.play();    //继续播放原来暂停的
 	               }else{
 	                  player.play({vid:vid,autoplay:true});  //播放新视频
-	                  console.log(222222);
 	                  console.log(player);
 	               }
 	               e.stopPropagation();
@@ -321,6 +326,83 @@
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var setCss=__webpack_require__(10);
+
+	module.exports=function(){
+	Txplayer.dataset.H5PlayerStyleUrl['diy'] = '//vm.gtimg.cn/tencentvideo/txp/style/txp_desktop_v2.css';  //添加样式
+	var player = new Txplayer({
+	  containerId: 'video_container_body',
+	  vid: 'r0018hmh1pa',   //先随便填一个，不知道可不可以填一个错的vid
+	  width: '100%',
+	  height: '100%',
+	  playerType: 'diy',
+	  autoplay: false,
+	  useSVG: true,
+	  showLogo: true,
+	  enForcePlayerType:true,
+	  pluginsMap: {
+	    vod: {
+	      diy: [
+	        'HtmlFrame',
+	        'HdPlayer',
+	        'HdPlayerControl',
+	        'UiPoster',
+	        'UiControl',
+	        'UiLoading'
+	      ]
+	    }
+	  },
+	    settings: {
+	    UiControl: {
+	      subPlugins: [
+	        'UiControlPlay',   
+	        'UiShowTime',      //显示时间
+	        'UiVolume',        //显示音量
+	        'UiProgress',     //显示进度条
+	        'UiSettings',
+	        'UiDefinition',
+	        //'UiBrowserFullScreen',  //网页全屏
+	        'UiWindowFullScreen',   //浏览器全屏
+	        'UiLogo'         //显示腾讯视频logo
+	      ]
+	    }
+	  },
+	  //showUIVipGuide:{switchDefinitionFail: true},也没有用
+	  showUIVipGuide :(function(player){
+	      return function(){   //这里不明白当点击那个蓝光的时候，不是VIP才调用这个函数，是VIP直接播放？showUIVipGuide switchDefinitionFail
+	        window.open("http://v.qq.com/u/hlw/hlw_index.html");
+	        player.trigger('1080pVipGuideClose',{action: 'close1080p'});
+	      }
+	  })(player),
+	  showOpenVIPGuide:(function(player){   //点广告的关闭按钮需要执行的函数
+	         return function(){
+	              var temp=$("#mod_head_notice_trigger");
+	              if(temp.attr("alt")==="未登陆"||temp.find("img").attr("src").indexOf("?")===-1){
+	                 //说明没有登陆
+	                 temp.trigger("click");  //登陆了之后应该调到http://v.qq.com/u/hlw/hlw_index.html，可以监听登陆成功事件
+	              }else{
+	              window.open("http://v.qq.com/u/hlw/hlw_index.html");
+	             }
+	             player.trigger('1080pVipGuideClose',{action:'closeSkipAd'});
+	         }
+	  })(player)
+	});
+	//播放的视频改变,playStateChange:播放的状态改变
+	player.on("vidChange",function(data){   //拿到这个视频需要的时间可能比较的久，造成很大的延时
+	      //player.autoResize();
+	      var videoSize=player.getVideoSize();
+	      setCss(videoSize.width,videoSize.height);
+	});
+
+	return player;
+	};
+
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var tool=__webpack_require__(4);
 
 
@@ -362,75 +444,40 @@
 	//   video_container.find(".video_container_header").css({width:width});                
 	//   video_container.find("#video_container_body").css({width:width,height:height});
 	// }
-	//这里在火狐和chrome插件下拿不到正确的player
-	module.exports=function(){
-	Txplayer.dataset.H5PlayerStyleUrl['diy'] = '//vm.gtimg.cn/tencentvideo/txp/style/txp_desktop_v2.css';  //添加样式
-	var player = new Txplayer({
-	  containerId: 'video_container_body',
-	  vid: 'r0018hmh1pa',   //先随便填一个，不知道可不可以填一个错的vid
-	  width: '100%',
-	  height: '100%',
-	  playerType: 'diy',
-	  autoplay: false,
-	  useSVG: true,
-	  showLogo: true,
-	  enForcePlayerType:true,
-	  pluginsMap: {
-	    vod: {
-	      diy: [
-	        'HtmlFrame',
-	        'HdPlayer',
-	        'HdPlayerControl',
-	        'UiPoster',
-	        'UiControl',
-	        'UiLoading'
-	      ]
-	    }
-	  },
-	    settings: {
-	    UiControl: {
-	      subPlugins: [
-	        'UiControlPlay',   
-	        'UiShowTime',      //显示时间
-	        'UiVolume',        //显示音量
-	        'UiProgress',     //显示进度条
-	        'UiSettings',
-	        'UiDefinition',
-	        //'UiBrowserFullScreen',  //网页全屏
-	        'UiWindowFullScreen',   //浏览器全屏
-	        'UiLogo'         //显示腾讯视频logo
-	      ]
-	    }
-	  },
-	  showOpenVIPGuide:(function(player){
-	         return function(){
-	              var temp=$("#mod_head_notice_trigger");
-	              if(temp.attr("alt")==="未登陆"||temp.find("img").attr("src").indexOf("?")===-1){
-	                 //说明没有登陆
-	                 temp.trigger("click");  //登陆了之后应该调到http://v.qq.com/u/hlw/hlw_index.html，可以监听登陆成功事件
-	              }else{
-	              window.open("http://v.qq.com/u/hlw/hlw_index.html");
-	             }
-	             player.trigger('1080pVipGuideClose',{action:'closeSkipAd'});
+
+
+	module.exports=setCss
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var setCss=__webpack_require__(10);
+
+	module.exports=function(player){
+
+	  $(window).on("resize",function(){
+	      var videoSize=player.getVideoSize();
+	      setCss(videoSize.width,videoSize.height);
+	  }).on("keydown",function(e){
+	  	  if($(".video_container").css("display")!=="none"){   //只有在播放器在页面中显示的时候，才响应
+	         
+	         switch(e.which){
+	           case 32:player.togglePlayPause();   //空格
+	                   break;
+	           case 37:player.seekLeft();
+	                   break;//左
+	           case 39:player.seekRight();
+	                   break;//右
+	           case 27:$(".video_container").css("display","none");
+	                   player.pause();
+	                   break;//esc
 	         }
-	  })(player)
-	});
-	//播放的视频改变,playStateChange:播放的状态改变
-	player.on("vidChange",function(data){   //拿到这个视频需要的时间可能比较的久，造成很大的延时
-	      //player.autoResize();
-	      var videoSize=player.getVideoSize();
-	      setCss(videoSize.width,videoSize.height);
-	});
+	  	  }
+	  })
+	 
 
-	$(window).on("resize",function(){
-	      var videoSize=player.getVideoSize();
-	      setCss(videoSize.width,videoSize.height);
-	});
-
-	return player;
-	};
-
-
+	}
 
 /***/ }
 /******/ ]);
