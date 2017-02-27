@@ -327,6 +327,38 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var setCss=__webpack_require__(10);
+	var tools=__webpack_require__(4);
+
+	function playVideo(player){
+	         player.trigger('1080pVipGuideClose',{action: 'close1080p'});
+	         player.play();
+	}
+
+	function isLogin(temp){
+	  var res=true;
+	   if(temp.attr("alt")==="未登陆"||temp.find("img").attr("src").indexOf("?")===-1){
+	      res=false;
+	   }
+	   return res;
+	}
+
+	function loadVIPIFrame(player){
+	  var iframe=$('iframe[src="//film.qq.com/ipay/minipay.shtml?s=minipay&amp;ch=qdqb,kj,weixin&amp;c=txsp&amp;dc=weixin&amp;n=3&amp;u=_self&amp;autopay=0&amp;aid=V0$$2:1000$4:19$1:6$11:8&amp;month=3&amp;cash_param=v%3D1%26_fd_id%3Ddialog_1%26_fd_c%3D3944924559%26_fd_size%3D770%7C575%26_fd_w%3Dleft_sidebar%26_fd_ms%3DmodifyTitle"]');
+	  if(iframe.length<=0){
+	    div=$('<div class="tvmp_iframe" style="visibility: hidden;display: block; position: fixed; z-index: 10001; left: 50%; top: 50%; width: 770px; height: 575px; margin: -287px 0px 0px -385px;"></div>');
+	    iframe=$('<iframe class="cash_dialog_frame" frameborder="no" scrolling="auto" src="//film.qq.com/ipay/minipay.shtml?s=minipay&amp;ch=qdqb,kj,weixin&amp;c=txsp&amp;dc=weixin&amp;n=3&amp;u=_self&amp;autopay=0&amp;aid=V0$$2:1000$4:19$1:6$11:8&amp;month=3&amp;cash_param=v%3D1%26_fd_id%3Ddialog_1%26_fd_c%3D3944924559%26_fd_size%3D770%7C575%26_fd_w%3Dleft_sidebar%26_fd_ms%3DmodifyTitle" style="width: 770px; height: 575px; background: transparent; overflow-x: hidden;"></iframe>');
+	    div.append(iframe);
+	    $("body").prepend(div);
+	    iframe.on("load",function(){
+	      var that=$(".cash_dialog_frame");
+	      $($(that)[0].contentWindow.document).find("#minipay_close").on("click",function(){
+	          $(that).parent().css("visibility","hidden");
+	          playVideo(player);
+	      })
+	    });
+	   }
+	   div.css("visibility","visible");
+	}
 
 	module.exports=function(){
 	Txplayer.dataset.H5PlayerStyleUrl['diy'] = '//vm.gtimg.cn/tencentvideo/txp/style/txp_desktop_v2.css';  //添加样式
@@ -367,18 +399,10 @@
 	      ]
 	    }
 	  },
-	  //showUIVipGuide:{switchDefinitionFail: true},也没有用
-	  showUIVipGuide :(function(player){
-	      return function(){   //这里不明白当点击那个蓝光的时候，不是VIP才调用这个函数，是VIP直接播放？showUIVipGuide switchDefinitionFail
-	        window.open("http://v.qq.com/u/hlw/hlw_index.html");
-	        player.trigger('1080pVipGuideClose',{action: 'close1080p'});
-	      }
-	  })(player),
 	  showOpenVIPGuide:(function(player){   //点广告的关闭按钮需要执行的函数
 	         return function(){
 	              var temp=$("#mod_head_notice_trigger");
-	              if(temp.attr("alt")==="未登陆"||temp.find("img").attr("src").indexOf("?")===-1){
-	                 //说明没有登陆
+	              if(!isLogin(temp)){  //说明没有登陆
 	                 temp.trigger("click");  //登陆了之后应该调到http://v.qq.com/u/hlw/hlw_index.html，可以监听登陆成功事件
 	              }else{
 	              window.open("http://v.qq.com/u/hlw/hlw_index.html");
@@ -393,6 +417,34 @@
 	      var videoSize=player.getVideoSize();
 	      setCss(videoSize.width,videoSize.height);
 	});
+
+	player.on("showUIVipGuide",function(e){
+	  var temp=$("#mod_head_notice_trigger");
+	   if(!isLogin(temp)){
+	     temp.trigger("click");
+	     return;
+	   }
+	   if(e.switchDefinitionFail){   //表示当前用户不是VIP
+	        // 第一种方案，打开一个导向到可以开通VIP的页面
+	        // var a=$("a[href='http://film.qq.com']");
+	        // if(a.length<=0){
+	        //  a=$("<a href='http://film.qq.com'></a>");
+	        //  a.css("display","none");
+	        //  $("body").append(a);
+	        // }
+	        // a[0].click();
+	        // player.trigger('1080pVipGuideClose',{action: 'close1080p'});
+	        // player.play();
+	        
+	        //第二种方案，弹出一个开通VIP的浮层
+	        loadVIPIFrame(player);
+	   }else{  //是VIP
+	        
+	   }
+	});
+
+
+
 
 	return player;
 	};
@@ -473,7 +525,8 @@
 	                   player.pause();
 	                   break;//esc
 	         }
-	  	  }
+	     }
+	     e.preventDefault();
 	  })
 	 
 
