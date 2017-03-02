@@ -128,16 +128,16 @@
 	  // });
 
 	  $("body").append(video_container);
-	  video_container.mousedown(function(e){
+	  $('.video_container_header').mousedown(function(e){
 	    var pageX=e.pageX,
 	        pageY=e.pageY,
-	        that=this,
-	        left=$(that).position().left,
-	        top=$(that).position().top;
+	        that=$('.video_container'),
+	        left=that.position().left,
+	        top=that.position().top;
 	        
 	    $(document).mousemove(function(e){
 	         var x=e.pageX-pageX,y=e.pageY-pageY;
-	         $(that).css({left:left+x,top:top+y});
+	         that.css({left:left+x,top:top+y});
 	    });
 	  }).mouseup(function(e){
 	    $(document).unbind("mousemove");
