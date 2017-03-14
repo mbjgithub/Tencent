@@ -17,7 +17,8 @@
 .qp_figures_list .qp_figure_pic{display:block;width:100%;height:100%}
 .qp_figures_list .qp_figure_caption{position:absolute;bottom:0;left:0;height:20px}
 .qp_figures_list .qp_figure_info{position:absolute;left:3px;bottom:3px;padding:0 3px;line-height:20px;background-color:#111;font-size:12px;pointer-events:none}
-.qp_figures_list .qp_figure_title_two_row{width:200px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;line-height:24px;font-size:16px;font-weight:normal}
+.qp_figures_list .qp_figure_title_two_row{line-height:24px;font-size:16px;font-weight:normal}
+.qp_figures_list .qp_figure_title_two_row a{width:200px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .qp_figures_list .qp_figure_desc{font-size:12px;color:#888}
 .qp_current .qp_figure{outline:1px solid #FF5C38}
 .qp_current .qp_figure:after{display:none}
