@@ -1,7 +1,7 @@
 .poplayer_quickplay{position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:256px;box-sizing:border-box;background-color:rgba(26,28,33,.95);display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-pack:center;-webkit-box-align:center;display:-webkit-flex;-webkit-align-items:center;-webkit-justify-content:center;-webkit-flex-direction:column;display:flex;align-items:center;justify-content:center;flex-direction:column}
 .poplayer_quickplay a{color:#fff;text-decoration:none}
 .poplayer_quickplay .svg_icon{display:inline-block;width:100%;height:100%;fill:currentColor}
-.quickplay_container{display:block;width:60%;background-color:#1A1C21}
+.quickplay_container{display:block;position:absolute;top:0px;background-color:#1A1C21}
 .quickplay_player{position:relative;background-color:#1a1c21}
 .quickplay_headline{display:flex;align-items:center;flex-direction:row}
 .quickplay_headline .qp_video_title{padding-left:20px;font-size:28px;font-weight:normal}
