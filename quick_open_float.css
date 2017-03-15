@@ -5,6 +5,8 @@
 .quickplay_player{position:relative;background-color:#1a1c21}
 .quickplay_headline{display:flex;align-items:center;flex-direction:row}
 .quickplay_headline .qp_video_title{padding-left:20px;font-size:28px;font-weight:normal}
+
+.quickplay_headline .qp_video_title a{display: inline-block;width:140px;white-space: nowrap;text-overflow: ellipsis;overflow: hidden}
 .quickplay_headline .qp_user_info{margin-left:15px;font-size:12px;color:#fff;opacity:.5}
 .quickplay_headline .qp_user_avatar{width:20px;height:20px;margin-right:6px;border-radius:100%;vertical-align:-3px}
 .quickplay_headline .qp_video_meta{padding-right:20px;text-align:right;flex:1 1 auto;justify-content:flex-end;color:#868686;font-size:12px}
