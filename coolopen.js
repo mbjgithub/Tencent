@@ -51,30 +51,19 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var loadPlayer=__webpack_require__(2);
-	var event=__webpack_require__(5);
-	var videoPlayer=__webpack_require__(9);
-	var windowEvent=__webpack_require__(11);
-	// module.exports=function(){
-	// 	$(document).ready(function(){
-	// 	//这里需要我手动创建script标签把'//vm.gtimg.cn/tencentvideo/txp/js/txplayer.js'加载到页面中吗
-	// 	loadPlayer();   //预先把视频播放器加载到页面先
-	// 	var script=$("<script type='text/javascript'></script>");
-	// 	script.attr("src","//vm.gtimg.cn/tencentvideo/txp/js/txplayer.js");
-	// 	$("head").append(script);
-	//     event();        //给
-	//    });
-	// }
+	var event=__webpack_require__(6);
+	var videoPlayer=__webpack_require__(12);
+	var windowEvent=__webpack_require__(13);
 
+		var link=document.createElement("link")
+		link.href="https://mbjgithub.github.io/Tencent/quick_open_float.css"
+		link.type="text/css"
+		link.rel="stylesheet"     //忘记加这个搞了我好久
+		document.getElementsByTagName("head")[0].append(link)
 	    //用法：直接require进来就行了
 		module.exports=$(document).ready(function(){
-		//这里需要我手动创建script标签把'//vm.gtimg.cn/tencentvideo/txp/js/txplayer.js'加载到页面中吗
 		loadPlayer();   //预先把视频播放器加载到页面先
-		// var script=$("<script type='text/javascript'></script>");
-		// script.attr("src","//vm.gtimg.cn/tencentvideo/txp/js/txplayer.js");
-		// $("head").append(script);
-		// $(document).on('TxPlayerJSBrageReady', function(){
 
-	 //    });
 	    var script=document.createElement("script");
 		script.src="https://vm.gtimg.cn/tencentvideo/txp/js/txplayer.js";
 		var READY_STATE_RE = /^(?:loaded|complete|undefined)$/;
@@ -98,50 +87,25 @@
 
 	var style=__webpack_require__(3);
 	var tool=__webpack_require__(4);
+	var container=__webpack_require__(5)
+
 	// 标准的16:9版播放器，会有黑边
 	function setCss(video_container){
 	  var clientWidth=tool.getClientWidth(),
 	      tempWidthCount=Math.round(clientWidth/2/16),   //本来是以clientWidth/2作为video的width的，但是要尽量满足16：9
 	      width=tempWidthCount*16,
-	      height=tempWidthCount*9,   //16:9
-	      left=parseInt((clientWidth-width)/2),
-	      top=parseInt((tool.getClientHeight()-height)/3);
-	      video_container.css({left:left,top:top});
-	  video_container.find(".video_container_header").css({width:width});                
-	  video_container.find("#video_container_body").css({width:width,height:height});
+	      height=tempWidthCount*9;   //16:9                
+	     video_container.find("#video_container_body").css({width:width,height:height});
 	}
 
 	module.exports=function(){   //document ready的时候就执行这个函数，把视频播放器预先加载到页面
 		var video_container=$("<div class='video_container'></div>");
-	  video_container.append("<div class='video_container_header'><div class='video_container_header_title'></div><div class='video_container_header_close'>X</div></div>");
-	  video_container.append("<div id='video_container_body'></div>");
+	  video_container.append(container.body);
 	  
 	  video_container.css(style.video_container);
-	  video_container.find(".video_container_header").css(style.video_container_header);
-	  video_container.find(".video_container_header_title").css(style.video_container_header_title);
-	  video_container.find(".video_container_header_close").css(style.video_container_header_close);                 
-	  video_container.find("#video_container_body").css(style.video_container_body);
-	  setCss(video_container);   //这里必须要先设置好width和height，到时候加载视频的时候，就不需要等很久
-
-	  // $(window).on("resize",function(){
-	  //   setCss($(".video_container"));
-	  // });
-
+	  setCss(video_container)
 	  $("body").append(video_container);
-	  $('.video_container_header').mousedown(function(e){
-	    var pageX=e.pageX,
-	        pageY=e.pageY,
-	        that=$('.video_container'),
-	        left=that.position().left,
-	        top=that.position().top;
-	        
-	    $(document).mousemove(function(e){
-	         var x=e.pageX-pageX,y=e.pageY-pageY;
-	         that.css({left:left+x,top:top+y});
-	    });
-	  }).mouseup(function(e){
-	    $(document).unbind("mousemove");
-	  });
+
 	}
 
 
@@ -154,33 +118,15 @@
 	video_container:{
 		position: "fixed",
 		display:"none",
-	  "zIndex":9999
-	},
-	video_container_header:{
-	  	height: "30px",
-	  	overflow: "hidden",
-	  	// width: "100%",
-	  	fontSize: "18px",
-	  	backgroundColor: "#000",
-	  	color: "#fff",
-	    opacity:0.7,
-	    paddingTop:"5px"
-	  },
-	video_container_header_title:{
-	  	float:"left",
-	  	marginLeft: "5px",
-	  },
-	video_container_header_close:{
-	  	float: "right",
-	  	marginRight:"6px",
-	    color:"#fff",
-	    cursor:"pointer",
-	    padding:"0px 2px 2px 2px"
-	  },
-	video_container_body:{
-		// width: "100%"
-	 }
+		zIndex:9999,
+		width:'100%',
+		height:'100%',
+		left:0,
+	    top:0
+	 },
+
 	}
+
 
 
 /***/ },
@@ -203,27 +149,88 @@
 		}
 	}
 
+	function loadScript(url,callback){
+	    var script=document.createElement("script");
+		script.src=url;
+		var READY_STATE_RE = /^(?:loaded|complete|undefined)$/;
+		script.onload=script.onreadystatechange=function() {
+			      if (READY_STATE_RE.test(script.readyState)) {
+			        // Ensure only run once and handle memory leak in IE
+			        script.onload=script.onreadystatechange = null;
+			        // Dereference the script
+			        script = null;
+			        callback()
+			      }
+			    };
+		document.getElementsByTagName("body")[0].append(script);  
+	}
+
+	function formateTime(s){  //传入的是秒
+	   var h=parseInt(s/3600)
+	   s=s-h*3600
+	   var m=parseInt(s/60)
+	   s=s-m*60
+	   h=h<=0?"":h<10?"0"+h:h
+	   m=m<10?"0"+m:m
+	   s=s<10?"0"+s:s
+	   return h!=""?(h+":"+m+":"+s):(m+":"+s)
+	}
+
+	function formateDate(str){
+		var temp=["年","月","日"],i=0;
+	    str=str.replace(/\s+[\w:]*$/,"-");
+		return str.replace(/-/g,function(){
+	        console.log(temp[i])
+			return temp[i++] 
+		})
+	}
+
 	module.exports={
 		getClientWidth:getClientWidth,
-		getClientHeight:getClientHeight
+		getClientHeight:getClientHeight,
+		loadScript:loadScript,
+		formateDate:formateDate,
+		formateTime:formateTime
 	}
 
 /***/ },
 /* 5 */
+/***/ function(module, exports) {
+
+	module.exports={
+		body:'<div class="poplayer_quickplay">  <!-- svg sprite -->  <svg class="svg_sprite" display="none" version="1.1" xmlns="http://www.w3.org/2000/svg">   <symbol id="svg_qp_icon_prev" viewBox="0 0 22 43">    <path d="M21.842 0.16a.9.9 0 0 1-.2 1.21l-19.909 20.13 19.909 20.13a.9.9 0 0 1 .2 1.21.861.861 0 0 1-1.191-.21l-20.4-20.63a.628.628 0 0 1 0-1l20.4-20.63a.861.861 0 0 1 1.191-.21z"></path>   </symbol>   <symbol id="svg_qp_icon_next" viewBox="0 0 22 43">    <path d="M0.19 0.16a.9.9 0 0 0 .2 1.21l19.91 20.13-19.91 20.13a.9.9 0 0 0-.2 1.21.86.86 0 0 0 1.19-.21l20.4-20.63a.627.627 0 0 0 0-1l-20.4-20.63a.86.86 0 0 0-1.19-.21z"></path>   </symbol>   <symbol id="svg_qp_icon_close" viewBox="0 0 38 38">    <path d="M0.39 36.69a.864.864 0 0 0-.2 1.18.887.887 0 0 0 1.19-.2l17.65-17.66 17.65 17.66a.887.887 0 0 0 1.19.2.864.864 0 0 0-.2-1.18l-17.66-17.66 17.66-17.66a.864.864 0 0 0 .2-1.18.876.876 0 0 0-1.19.2l-17.65 17.65-17.65-17.65a.876.876 0 0 0-1.19-.2.864.864 0 0 0 .2 1.18l17.65 17.66z"></path>   </symbol>  </svg>   <div class="quickplay_container">   <div class="quickplay_player" id="video_container_body">    <!-- 插入播放器 -->   </div>   <div style="height:70px;" class="quickplay_headline">    <h1 class="qp_video_title"><a href="http://10.123.9.9/tencentvideo/vstyle/web/v4/html/quickplay.html#">科技三分钟</a></h1>    <a href="http://10.123.9.9/tencentvideo/vstyle/web/v4/html/quickplay.html#" class="qp_user_info"><img class="qp_user_avatar"><span class="qp_user_name">QM工作室</span></a>    <div class="qp_video_meta">     <a href="http://10.123.9.9/tencentvideo/vstyle/web/v4/html/quickplay.html#" class="qp_comments">122条评论</a>     <span class="qp_date">2017年10月2日发布</span>    </div>   </div>  </div>  <div class="quickplay_foot">   <div class="qp_figures_scroll">    <div class="qp_mod_figures">     <ul class="qp_figures_list">      </ul>    </div>   </div>  </div>     <a href="javascript:void(0);" class="qp_btn_prev qp_btn_disabled" title="上一个">   <svg class="svg_icon" viewBox="0 0 22 43" width="22" height="43"><use xlink:href="#svg_qp_icon_prev"></use></svg>   <span class="qp_btn_text">精彩马上呈现</span>  </a>  <a href="javascript:void(0);" class="qp_btn_next" title="下一个">   <span class="qp_btn_text">精彩马上呈现</span>   <svg class="svg_icon" viewBox="0 0 22 43" width="22" height="43"><use xlink:href="#svg_qp_icon_next"></use></svg>  </a>   <a href="javascript:void(0);" class="qp_pop_close"><svg class="svg_icon" viewBox="0 0 38 38" width="38" height="38"><use xlink:href="#svg_qp_icon_close"></use></svg></a>     </div> ',
+	    item:'<li class="qp_list_item">'+
+							'<a href="javascript:void(0);" class="qp_figure" tabindex="-1">'+
+								'<img class="qp_figure_pic">'+
+								'<div class="qp_figure_caption">'+
+									'<span class="qp_figure_info"></span>'+
+								'</div>'+
+							'</a>'+
+							'<div class="qp_figrue_titles">'+
+								'<strong class="qp_figure_title qp_figure_title_two_row"><a></a></strong>'+
+							'</div>'+
+						'</li>'
+
+	}
+
+/***/ },
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var parse=__webpack_require__(6);
-	var button=__webpack_require__(8);
-
+	var parse=__webpack_require__(7);
+	var button=__webpack_require__(9);
+	var recommend=__webpack_require__(10)
+	var setCss=__webpack_require__(11);
 
 	module.exports=function(player){
+	  var globalVid;
 	  $("body").on("mouseover",function(e){
 	      var count=10,temp=$(e.target),vid,btnLeft,
 	          btn=button();
 	      while(temp.length>0&&count--){
 	        if(temp[0].nodeName.toLowerCase()==="a"&&
-	                (vid=parse(temp.attr("href")))&&
-	                (temp.find("img").length>0||(btnLeft=temp.css("backgroundImage").indexOf("url")>=0))){
+	                (vid=globalVid=parse(temp.attr("href")))&&
+	                (temp.find("img").length>0)){
 	          temp.css({position:"relative",display:"inline-block"}).append(btn).on("mouseover",function(e){
 	             var tempBtn=$(this).find("button");
 	             tempBtn.css("display","block");
@@ -240,13 +247,14 @@
 	          temp.find("button").on("click",function(e){
 	               //make video player available
 	               // btnLeft? $(".video_container_header_title").text(temp.text()) :
-	               $(".video_container_header_title").text($(this).parent().attr("title")||$(this).parent().find("img").attr("alt")||"腾讯视频");
 	               $(".video_container").css("display","block");  //在播放完当前视频后，广告也算是当前视频的？
 	               if(player.getVid()===vid&&player.getPlayerState()===2){  //当前视频被暂停的
 	                  player.play();    //继续播放原来暂停的
 	               }else{
 	                  player.play({vid:vid,autoplay:true});  //播放新视频
-	                  console.log(player);
+	                  setTimeout(function(){
+	                    recommend.loadData(vid);
+	                  },0)
 	               }
 	               e.stopPropagation();
 	               e.preventDefault();
@@ -257,19 +265,67 @@
 	      }
 	      //可以考虑要不要给e.target打标记，下一次在mouseover这个元素的时候，就直接return，连这10此循环都不用做
 	  });
-	  $(".video_container_header_close").on("click",function(e){
-	                         $(".video_container").css("display","none");
-	                         player.pause();   //关闭当前视频，就先暂停
-	                         e.stopPropagation();
-	                     });
+
+	player.on("playStateChange",function(d){   //拿到这个视频需要的时间可能比较的久，造成很大的延时
+	      //player.autoResize();
+	      if(d.state===0){
+	         getVidAndPlay($('.qp_list_item')[0])
+	      }else if(player.getVid!=globalVid){
+	        var videoSize=player.getVideoSize();
+	        setCss(videoSize.width,videoSize.height);
+	      }
+	      
+	});
+
+	function tempStop(e){
+	        $(".video_container").css("display","none");
+	        player.pause();   //关闭当前视频，就先暂停
+	        e.stopPropagation();
+	  }
+	function getVidAndPlay(dom){
+	    var vid=$(dom).data("vid")
+	    if(vid){
+	       player.play({vid:vid,autoplay:true});  //播放新视频
+	                  setTimeout(function(){
+	                    recommend.loadData(vid);
+	                  },0)
+	    }
+	}
+	  $(".qp_pop_close").on("click",function(e){
+	        tempStop(e)
+	  });
+
+	  $(".poplayer_quickplay").click(function(e){  
+	    if(e.target===this){
+	       tempStop(e)
+	    } 
+	  })
+
+	  $(".qp_btn_next .qp_btn_text").on('click',function(){
+	     getVidAndPlay(this)
+	  });
+	  
+	  $('.qp_figures_list').on("click",function(e){
+	      if(e.target.nodeName.toLowerCase()=="ul"){
+	        return 
+	      }
+	      var temp=$(e.target)
+	      while(temp[0].nodeName.toLowerCase()!="li"){
+	          temp=temp.parent()
+	      }
+	      getVidAndPlay(temp[0])
+	  })
+
 	}
 
+
+
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// var path = require('path');
-	var reg=__webpack_require__(7);
+	var reg=__webpack_require__(8);
 
 	function parse(url){
 	    // var basename=path.basename(url,".html");
@@ -284,7 +340,7 @@
 	module.exports=parse;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports) {
 
 	module.exports={
@@ -293,7 +349,7 @@
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	module.exports=function(){
@@ -323,10 +379,113 @@
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var setCss=__webpack_require__(10);
+	var tools=__webpack_require__(4)
+	var dom=__webpack_require__(5)
+
+	var LIST_LENGTH=7
+
+	var path="https://node.video.qq.com/x/api/quick_open?callback=cb&vid="
+	function cb(d){
+	   d.upload_qq_info=JSON.parse(d.upload_qq_info)
+	   window.data=d
+	   console.log(d)
+	}
+	window.cb=cb
+	function loadData(vid){
+	    tools.loadScript(path+vid,function(){
+	    	$(".qp_video_title a").text(data.title).attr({href:data.url,title:data.title})
+	    	$('.qp_user_info').attr('href',data.upload_qq_info.info.urlfull)
+	    	$('.qp_user_avatar').attr('src',data.upload_qq_info.info.avatar)
+	    	$('.qp_user_name').text(data.upload_qq_info.info.nick||"此英雄没有留下昵称")
+	    	$('.qp_comments').text("122条评论").attr('href',"v.qq.com")   //评论的地址
+	    	$('.qp_date').text(tools.formateDate(data.publish_date))
+	    	var len=data.cover_video.length,
+	    	    len=len<7?len:LIST_LENGTH,
+	    	    i,rec;
+	         $(".qp_figures_list").text('')  //清空
+	    	for(i=0;i<len;i++){
+	           item=$(dom.item);
+	           rec=data.cover_video[i].jsonData;
+	           if(i===0){
+	           	item.addClass('qp_current')
+	           	$('.qp_btn_text').text(rec.title).data("vid",rec.vid)   
+	           }
+	           item.find('.qp_figure').attr("title",rec.title)
+	           item.find('.qp_figure_pic').attr({src:rec.pic_228_128,alt:rec.title})
+	           item.find('.qp_figure_info').text(tools.formateTime(rec.duration))
+	           item.find('.qp_figure_title a').text(rec.title).attr({href:rec.title,title:rec.title})
+	           item.data('vid',rec.vid)
+	           $(".qp_figures_list").append(item)
+	    	}
+	    })
+	}
+
+	module.exports={
+		loadData:loadData
+	}
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var tool=__webpack_require__(4);
+
+
+	//这里是保证绝对的播放器比例，但是效果还没有下面好
+	// function setCss(w,h){
+	//   var video_container=$(".video_container"),
+	//       clientWidth=tool.getClientWidth(),
+	//       tempWidthCount=Math.round(clientWidth/2/w),   //本来是以clientWidth/2作为video的width的，但是要尽量满足16：9
+	//       width=tempWidthCount*w,
+	//       height=tempWidthCount*h,   //16:9
+	//       left=parseInt((clientWidth-width)/2),
+	//       top=parseInt((tool.getClientHeight()-height)/3);
+	//       video_container.css({left:left,top:top});
+	//       console.log(w+" "+h);
+	//   video_container.find(".video_container_header").css({width:width});                
+	//   video_container.find("#video_container_body").css({width:width,height:height});
+	// }
+
+	//这样的效果最好，播放器的width直接是clientWidth/2,然后高度直接采用比例
+	// function setCss(w,h){
+	//   var video_container_body=$("#video_container_body"), 
+	//       height=video_container_body.css("height"),   
+	//       width=w*height/h;               
+	//       video_container_body.css({width:width});    //我还是得动态拿
+	// }
+	function setCss(w,h){
+	  var quickplay_container=$(".quickplay_container")
+	      rule=w/h,
+	      clientWidth=tool.getClientWidth(),
+	      width=Math.round(clientWidth/2),   
+	      height=(rule<1.82&&rule>1.71)?(width/w)*h:width/1.777,   
+	      left=parseInt((clientWidth-width)/2);
+	      
+	      quickplay_container.css({left:left});             
+	     $("#video_container_body").css({width:width,height:height});
+	}
+	//采用的就是播放器的width和height
+	// function setCss(width,height){
+	//   var video_container=$(".video_container"),
+	//       clientWidth=tool.getClientWidth(), 
+	//       left=parseInt((clientWidth-width)/2),
+	//       top=parseInt((tool.getClientHeight()-height)/3);
+	//       video_container.css({left:left,top:top});
+	//   video_container.find(".video_container_header").css({width:width});                
+	//   video_container.find("#video_container_body").css({width:width,height:height});
+	// }
+
+
+	module.exports=setCss
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var setCss=__webpack_require__(11);
 	var tools=__webpack_require__(4);
 
 	function playVideo(player){
@@ -377,6 +536,7 @@
 	      diy: [
 	        'HtmlFrame',
 	        'HdPlayer',
+	        'HdPlayerHistory',
 	        'HdPlayerControl',
 	        'UiPoster',
 	        'UiControl',
@@ -412,16 +572,15 @@
 	  })(player)
 	});
 	//播放的视频改变,playStateChange:播放的状态改变
-	player.on("vidChange",function(data){   //拿到这个视频需要的时间可能比较的久，造成很大的延时
-	      //player.autoResize();
-	      var videoSize=player.getVideoSize();
-	      setCss(videoSize.width,videoSize.height);
-	});
+
 
 	player.on("showUIVipGuide",function(e){
 	  var temp=$("#mod_head_notice_trigger");
 	   if(!isLogin(temp)){
 	     temp.trigger("click");
+	     $($(".iframe_mask")[0].contentWindow.document).find("#login_close").on("click",function(){  //如果用户点击的是关闭按钮
+	       player.togglePlayPause()
+	     });
 	     return;
 	   }
 	   if(e.switchDefinitionFail){   //表示当前用户不是VIP
@@ -452,59 +611,10 @@
 
 
 /***/ },
-/* 10 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var tool=__webpack_require__(4);
-
-
-	//这里是保证绝对的播放器比例，但是效果还没有下面好
-	// function setCss(w,h){
-	//   var video_container=$(".video_container"),
-	//       clientWidth=tool.getClientWidth(),
-	//       tempWidthCount=Math.round(clientWidth/2/w),   //本来是以clientWidth/2作为video的width的，但是要尽量满足16：9
-	//       width=tempWidthCount*w,
-	//       height=tempWidthCount*h,   //16:9
-	//       left=parseInt((clientWidth-width)/2),
-	//       top=parseInt((tool.getClientHeight()-height)/3);
-	//       video_container.css({left:left,top:top});
-	//       console.log(w+" "+h);
-	//   video_container.find(".video_container_header").css({width:width});                
-	//   video_container.find("#video_container_body").css({width:width,height:height});
-	// }
-
-	//这样的效果最好，播放器的width直接是clientWidth/2,然后高度直接采用比例
-	function setCss(w,h){
-	  var video_container=$(".video_container"),
-	      clientWidth=tool.getClientWidth(),
-	      width=Math.round(clientWidth/2),   
-	      height=(width/w)*h,   
-	      left=parseInt((clientWidth-width)/2),
-	      top=parseInt((tool.getClientHeight()-height)/3);
-	      video_container.css({left:left,top:top});
-	  video_container.find(".video_container_header").css({width:width});                
-	  video_container.find("#video_container_body").css({width:width,height:height});
-	}
-
-	//采用的就是播放器的width和height
-	// function setCss(width,height){
-	//   var video_container=$(".video_container"),
-	//       clientWidth=tool.getClientWidth(), 
-	//       left=parseInt((clientWidth-width)/2),
-	//       top=parseInt((tool.getClientHeight()-height)/3);
-	//       video_container.css({left:left,top:top});
-	//   video_container.find(".video_container_header").css({width:width});                
-	//   video_container.find("#video_container_body").css({width:width,height:height});
-	// }
-
-
-	module.exports=setCss
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var setCss=__webpack_require__(10);
+	var setCss=__webpack_require__(11);
 
 	module.exports=function(player){
 
