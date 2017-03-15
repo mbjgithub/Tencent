@@ -4,7 +4,7 @@
 .quickplay_container{display:block;position:absolute;top:0px;background-color:#1A1C21}
 .quickplay_player{position:relative;background-color:#1a1c21}
 .quickplay_headline{display:flex;align-items:center;flex-direction:row}
-.quickplay_headline .qp_video_title{padding-left:20px;font-size:28px;font-weight:normal}
+.quickplay_headline .qp_video_title{padding-left:20px;font-size:20px;font-weight:normal}
 
 .quickplay_headline .qp_video_title a{display: inline-block;width:140px;white-space: nowrap;text-overflow: ellipsis;overflow: hidden}
 .quickplay_headline .qp_user_info{margin-left:15px;font-size:12px;color:#fff;opacity:.5}
