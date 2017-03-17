@@ -324,8 +324,10 @@
 	      //player.autoResize();
 	      if(d.state===0&&d.reason!=="stop"){    //播放结束
 	         getVidAndPlay($('.qp_btn_next'))
-	      }else if(d.state){
+	      }else if(d.state===1){
+	        
 	        var videoSize=player.getVideoSize();
+	        console.log(videoSize.width+":"+videoSize.height)
 	        setCss(videoSize.width,videoSize.height);
 	      }
 	});
