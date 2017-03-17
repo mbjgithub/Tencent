@@ -315,15 +315,18 @@
 	      //可以考虑要不要给e.target打标记，下一次在mouseover这个元素的时候，就直接return，连这10此循环都不用做
 	  });
 
-	player.on("adEnd",function(){     
-	        var videoSize=player.getVideoSize();
-	        setCss(videoSize.width,videoSize.height);
-	})
+	// player.on("adEnd",function(){     
+	//         var videoSize=player.getVideoSize();
+	//         setCss(videoSize.width,videoSize.height);
+	// })
 
 	player.on("playStateChange",function(d){   //拿到这个视频需要的时间可能比较的久，造成很大的延时
 	      //player.autoResize();
 	      if(d.state===0&&d.reason!=="stop"){    //播放结束
 	         getVidAndPlay($('.qp_btn_next'))
+	      }else if(d.state){
+	        var videoSize=player.getVideoSize();
+	        setCss(videoSize.width,videoSize.height);
 	      }
 	});
 
